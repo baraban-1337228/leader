@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест: Какой ты тип лидера в реальной жизни?</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-color: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #ec4899;
+            --btn-hover: #db2777;
+            --option-bg: #334155;
+            --option-hover: #475569;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            background-color: var(--card-color);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(236, 72, 153, 0.2);
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+            border: 2px solid #334155;
+        }
+
+        .screen {
+            display: none;
+            text-align: center;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #f472b6;
+        }
+
+        p.subtitle {
+            color: #94a3b8;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            box-shadow: 0 4px 0px #be185d;
+        }
+
+        .btn:hover {
+            background-color: var(--btn-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0px #be185d;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px #be185d;
+        }
+
+        .progress-bar {
+            background-color: #334155;
+            height: 12px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 1px solid #475569;
+        }
+
+        .progress-fill {
+            background-color: var(--accent-color);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #f8fafc;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            background-color: var(--option-bg);
+            border: 2px solid #475569;
+            padding: 16px 20px;
+            border-radius: 12px;
+            text-align: left;
+            font-size: 16px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .option-btn:hover {
+            background-color: var(--option-hover);
+            border-color: var(--accent-color);
+            transform: scale(1.02);
+        }
+
+        .verdict-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #f472b6;
+            margin-bottom: 15px;
+        }
+
+        .verdict-desc {
+            font-size: 18px;
+            color: #cbd5e1;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px dashed #475569;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div id="start-screen" class="screen active">
+        <h1>КТО ТЫ ПО ЖИЗНИ?</h1>
+        <p class="subtitle">Узнай свой истинный стиль управления!</p>
+        <button class="btn" onclick="startGame()">Узнать свой тип лидера</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
+        </div>
+        <div id="question-text" class="question-text">Текст вопроса</div>
+        <div id="options-list" class="options-list"></div>
+    </div>
+
+    <div id="end-screen" class="screen">
+        <h1>Твой результат получен! 🎉</h1>
+        <div id="verdict-title" class="verdict-title">Статус</div>
+        <div id="verdict-desc" class="verdict-desc">Описание</div>
+        <button class="btn" onclick="restartGame()">Пройти еще раз</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "Проект сдавать через 2 часа, а половина работы не сделана. Твои действия:",
+            options: [
+                "Пишу капсом: 'РАБОТАЕМ, КТО УЙДЕТ — УВОЛЕН!' (Авторитарный)",
+                "Создаю созвон: 'Ребята,найдем выход вместе' (Демократический)",
+                "Выхожу из сети и надеюсь, что они как-нибудь сами разберутся (Либеральный)",
+                "Записываю кружочек: 'Вы лучшие, мы сможем, ради нашей великой цели!' (Вдохновляющий)"
+            ],
+            scores: ['A', 'B', 'C', 'D']
+        },
+        {
+            question: "Кто-то в команде совершил ошибку и случайно удалил весь проект. Твоя реакция?",
+            options: [
+                "Ищу виноватого, чтобы устроить публичное наказание (Авторитарный)",
+                "Собираю команду, чтобы устроить мозговой штурм и переделать всё с нуля за час (Демократический)",
+                "Пожимаю плечами: 'Ну, бывает. Решайте сами, что делать' (Либеральный)",
+                "Говорю: 'Ничего страшного. Зато теперь мы сделаем его еще лучше' (Вдохновляющий)"
+            ],
+            scores: ['A', 'B', 'C', 'D']
+        },
+        {
+            question: "Твоя команда просит тебя распределить новые задачи на неделю. Твой подход:",
+            options: [
+                "Раздаю четкие приказы. Шаг влево, шаг вправо — расстрел (Авторитарный)",
+                "Обсуждаю с каждым, кому что интереснее и кто с чем лучше справится (Демократический)",
+                "Скидываю список в чат со словами: 'Разберите там сами кому что нравится' (Либеральный)",
+                "Заряжаю всех энергией: 'Каждая задача очень важна. Разбирайте.' (Вдохновляющий)"
+            ],
+            scores: ['A', 'B', 'C', 'D']
+        },
+        {
+            question: "Какое качество ты считаешь самым главным для хорошего босса?",
+            options: [
+                "Умение держать всех в ежовых рукавицах и железная дисциплина (Авторитарный)",
+                "Умение слушать команду, договариваться и находить компромиссы (Демократический)",
+                "Вера в то, что люди сами все сделают, если им просто не мешать (Либеральный)",
+                "Мощнейшая харизма, способная заставить людей работать за идею (Вдохновляющий)"
+            ],
+            scores: ['A', 'B', 'C', 'D']
+        }
+    ];
+
+    const results = {
+        'A': {
+            title: "👑 Султан Микроменеджмента (Авторитарный стиль)",
+            desc: "Твой девиз: 'Есть два мнения — моё и неправильное'. Ты обожаешь контролировать каждый шаг команды, а пульт от телевизора для тебя — священный артефакт власти. Команда тебя боится, но дело делается. Попробуй иногда давать людям дышать!"
+        },
+        'B': {
+            title: "🤝 Мистер Компромисс (Демократический стиль)",
+            desc: "Ты идеальный тимлид. Перед тем как заказать пиццу, ты проведешь три раунда голосования, чтобы учесть мнение каждого. Ты веришь в силу переговоров и рукопожатий. Команда тебя обожает, но иногда обсуждения длятся дольше, чем сама работа."
+        },
+        'C': {
+            title: "🧘‍♂️ Мастер Пофигизма (Либеральный стиль)",
+            desc: "Твой стиль управления — абсолютный дзен. Ты просто кидаешь задачи в чат и уходишь пить кофе, искренне надеясь, что магия вне Хогвартса сработает и команда всё сделает сама. Свобода — это круто, но иногда плыть по течению опасно!"
+        },
+        'D': {
+            title: "⚡ Данко с Горящим Сердцем (Вдохновляющий стиль)",
+            desc: "Ты не просто лидер, ты — ходячая мотивационная цитата. Ты ведешь людей за собой на вершину горы, махая флагом и толкая пламенные речи о великой цели. Люди готовы идти за тобой хоть в огонь, главное — чтобы ты сам не перегорел по пути!"
+        }
+    };
+
+    let currentQuestionIndex = 0;
+    let typeScores = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 };
+
+    function showScreen(screenId) {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('end-screen').style.display = 'none';
+        document.getElementById(screenId).style.display = 'block';
+    }
+
+    function startGame() {
+        currentQuestionIndex = 0;
+        typeScores = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 };
+        showScreen('game-screen');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const q = questions[currentQuestionIndex];
+        const progressPercent = (currentQuestionIndex / questions.length) * 100;
+        document.getElementById('progress-fill').style.width = progressPercent + '%';
+        document.getElementById('question-text').innerText = q.question;
+
+        const optionsList = document.getElementById('options-list');
+        optionsList.innerHTML = '';
+
+        q.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.className = 'option-btn';
+            button.innerText = option;
+            button.onclick = () => selectOption(q.scores[index]);
+            optionsList.appendChild(button);
+        });
+    }
+
+    function selectOption(scoreType) {
+        typeScores[scoreType]++;
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        showScreen('end-screen');
+        let maxType = 'A';
+        let maxScore = -1;
+        for (const type in typeScores) {
+            if (typeScores[type] > maxScore) {
+                maxScore = typeScores[type];
+                maxType = type;
+            }
+        }
+        const finalResult = results[maxType];
+        document.getElementById('verdict-title').innerText = finalResult.title;
+        document.getElementById('verdict-desc').innerText = finalResult.desc;
+    }
+
+    function restartGame() {
+        startGame();
+    }
+</script>
+</body>
+</html>
